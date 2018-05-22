@@ -8,6 +8,10 @@
 // Firebase Database URL
 #define databaseURL "engenharia-de-software-fa3bf.firebaseio.com"
 
+const char* ntpServer = "pool.ntp.org";
+const long  gmtOffset_sec = 3600;
+const int   daylightOffset_sec = 3600;
+
 void setup() {
 	// Pino 2 onde o atuador está conectado é declarado como saída
 	pinMode(2, OUTPUT);
@@ -28,6 +32,17 @@ void setup() {
 	Serial.println(WiFi.localIP());
 	Serial.println("");
 	
+	// Configura os parâmetros para a busca da data e do horário atual
+	configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+	
+	// Busca pela data e horário atual
+	struct tm timeinfo;
+	if(!getLocalTime(&timeinfo)){
+		Serial.println("Failed to obtain time");
+		return;
+	}
+	Serial.println(&timeinfo, "%b-%d-%Y/%H:%M:%S");
+
 	// Firebase é incializado
 	Firebase.begin(databaseURL);
 
@@ -59,18 +74,59 @@ void setup() {
 }
 
 void loop() {
-	// na pasta logs, um valor é inserido a cada 2 segundos no database
-	// String é formatada em relação ao valor de "N"
-	// Exemplo: logs/number1...logs/number2...logs/number3
-	// Juntamente com esse nome, o valor de N é adicionado ao database
-	String upload = "logs/number";
-	Serial.println(upload);
-	upload += n;
-	Serial.println(upload);
-	// N é atualizado
-	n = n+1;
+	// Obtém a data atual
+	struct tm timeinfo;
+	if(!getLocalTime(&timeinfo)){
+	  Serial.println("Failed to obtain time");
+	  return;
+	}
+	Serial.println(&timeinfo, "%b-%d-%Y/%H:%M:%S"); 
+	
+	// Nome da variável é formatado para o formato "data/horário"
+	String uploadTime = "logs/";
 
-	// Valor de N é adicionado ao database juntamente com seu nome
+	if(timeinfo.tm_mday < 10){
+		uploadTime += "0";
+	}
+	uploadTime += timeinfo.tm_mday;
+
+	uploadTime += "-";
+
+	if(timeinfo.tm_mon+1 < 10){
+		uploadTime += "0";
+	}
+	uploadTime += timeinfo.tm_mon+1;
+
+	uploadTime += "-";
+
+	uploadTime += timeinfo.tm_year+1900;
+	uploadTime += "/";
+
+	if(timeinfo.tm_hour < 10){
+		uploadTime += "0";
+	}
+	uploadTime += timeinfo.tm_hour;
+
+	uploadTime += ":";
+
+	if(timeinfo.tm_min < 10){
+		uploadTime += "0";
+	}
+	uploadTime += timeinfo.tm_min;
+
+	uploadTime += ":";
+
+	if(timeinfo.tm_sec < 10){
+		uploadTime += "0";
+	}
+	uploadTime += timeinfo.tm_sec;
+
+	Serial.println("uploadTime: ");
+	Serial.println(uploadTime);
+	Serial.println("------------------------");
+
+	// Número 0 é colocado no banco de dados.
+	// O nome da variável está no formato "data/horário"
 	Firebase.setFloat(upload, n);
 	// Lida com algum possível erro
 	if (Firebase.failed()) {
