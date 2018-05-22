@@ -1,6 +1,8 @@
 #include <IOXhop_FirebaseESP32.h>
 #include <WiFi.h>
 
+// Tempo de espera para a comparação com millis
+#define defineTimeSensorRead 30000
 // SSID do WiFi
 #define WIFI_SSID "Cagghetto"
 // PASSWORD do WiFi
@@ -11,6 +13,9 @@
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = 3600;
 const int   daylightOffset_sec = 3600;
+
+unsigned long long int MILLISSEC = 0;
+int n = 0;
 
 void setup() {
 	// Pino 2 onde o atuador está conectado é declarado como saída
@@ -71,70 +76,76 @@ void setup() {
 			// String data = stream.getDataString();
 		}
 	});  
+
+	MILLISSEC = millis();
 }
 
 void loop() {
-	// Obtém a data atual
-	struct tm timeinfo;
-	if(!getLocalTime(&timeinfo)){
-	  Serial.println("Failed to obtain time");
-	  return;
+	// Loop é efetuado somenteDelay de 2 segundos é realizado
+	if(millis() > MILLISSEC){
+	    MILLISSEC += defineTimeSensorRead;
+	    Serial.println(millis());
+
+		// Obtém a data atual
+		struct tm timeinfo;
+		while(!getLocalTime(&timeinfo)){
+		  // Serial.println("Failed to obtain time");
+		  // return;
+		}
+		Serial.println(&timeinfo, "%b-%d-%Y/%H:%M:%S"); 
+		
+		// Nome da variável é formatado para o formato "data/horário"
+		String uploadTime = "logs/";
+
+		if(timeinfo.tm_mday < 10){
+			uploadTime += "0";
+		}
+		uploadTime += timeinfo.tm_mday;
+
+		uploadTime += "-";
+
+		if(timeinfo.tm_mon+1 < 10){
+			uploadTime += "0";
+		}
+		uploadTime += timeinfo.tm_mon+1;
+
+		uploadTime += "-";
+
+		uploadTime += timeinfo.tm_year+1900;
+		uploadTime += "/";
+
+		if(timeinfo.tm_hour < 10){
+			uploadTime += "0";
+		}
+		uploadTime += timeinfo.tm_hour;
+
+		uploadTime += ":";
+
+		if(timeinfo.tm_min < 10){
+			uploadTime += "0";
+		}
+		uploadTime += timeinfo.tm_min;
+
+		uploadTime += ":";
+
+		if(timeinfo.tm_sec < 10){
+			uploadTime += "0";
+		}
+		uploadTime += timeinfo.tm_sec;
+
+		Serial.println("uploadTime: ");
+		Serial.println(uploadTime);
+		Serial.println("------------------------");
+
+		// Número 0 é colocado no banco de dados.
+		// O nome da variável está no formato "data/horário"
+		Firebase.setFloat(upload, n);
+		// Lida com algum possível erro
+		if (Firebase.failed()) {
+			Serial.print("setting /number failed:");
+			Serial.println(Firebase.error());  
+			return;
+		}
+
 	}
-	Serial.println(&timeinfo, "%b-%d-%Y/%H:%M:%S"); 
-	
-	// Nome da variável é formatado para o formato "data/horário"
-	String uploadTime = "logs/";
-
-	if(timeinfo.tm_mday < 10){
-		uploadTime += "0";
-	}
-	uploadTime += timeinfo.tm_mday;
-
-	uploadTime += "-";
-
-	if(timeinfo.tm_mon+1 < 10){
-		uploadTime += "0";
-	}
-	uploadTime += timeinfo.tm_mon+1;
-
-	uploadTime += "-";
-
-	uploadTime += timeinfo.tm_year+1900;
-	uploadTime += "/";
-
-	if(timeinfo.tm_hour < 10){
-		uploadTime += "0";
-	}
-	uploadTime += timeinfo.tm_hour;
-
-	uploadTime += ":";
-
-	if(timeinfo.tm_min < 10){
-		uploadTime += "0";
-	}
-	uploadTime += timeinfo.tm_min;
-
-	uploadTime += ":";
-
-	if(timeinfo.tm_sec < 10){
-		uploadTime += "0";
-	}
-	uploadTime += timeinfo.tm_sec;
-
-	Serial.println("uploadTime: ");
-	Serial.println(uploadTime);
-	Serial.println("------------------------");
-
-	// Número 0 é colocado no banco de dados.
-	// O nome da variável está no formato "data/horário"
-	Firebase.setFloat(upload, n);
-	// Lida com algum possível erro
-	if (Firebase.failed()) {
-		Serial.print("setting /number failed:");
-		Serial.println(Firebase.error());  
-		return;
-	}
-
-	// Delay de 2 segundos é realizado
-	delay(2000);
 }
