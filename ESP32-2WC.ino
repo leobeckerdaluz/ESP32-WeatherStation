@@ -2,13 +2,19 @@
 #include <WiFi.h>
 
 // Tempo de espera para a comparação com millis
-#define defineTimeSensorRead 30000
+#define defineTimeSensorRead 5000
 // SSID do WiFi
-#define WIFI_SSID "Cagghetto"
+#define WIFI_SSID "CS6"
 // PASSWORD do WiFi
-#define WIFI_PASSWORD "12345679"
+#define WIFI_PASSWORD "luisdaluz6"
 // Firebase Database URL
 #define databaseURL "engenharia-de-software-fa3bf.firebaseio.com"
+// Pino onde o Atuador está conectado
+#define ACTUATORPIN 2
+// Pino onde o LED de status está conectado
+#define STATUSPIN 2
+// Definição do caminho onde os dados do sensor serão armazenados
+#define LOGSPATH "logs/"
 
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = 3600;
@@ -18,8 +24,8 @@ unsigned long long int MILLISSEC = 0;
 int n = 0;
 
 void setup() {
-	// Pino 2 onde o atuador está conectado é declarado como saída
-	pinMode(2, OUTPUT);
+	// Pino onde o atuador está conectado é declarado como saída
+	pinMode(ACTUATORPIN, OUTPUT);
 	
 	// Comunicação Serial é inicializada com Baud_rate 9600
 	Serial.begin(9600);
@@ -29,8 +35,17 @@ void setup() {
 	Serial.print("connecting");
 
 	// Enquanto o WiFi não está conectado, tenta conectar a cada 300ms
+	boolean statusLed = false;
 	while (WiFi.status() != WL_CONNECTED) {
 		Serial.print(".");
+		if(statusLed){
+			digitalWrite(STATUSPIN, LOW);
+			statusLed = false;
+		}
+		else{
+			digitalWrite(STATUSPIN, HIGH);
+			statusLed = true;
+		}
 		delay(300);
 	}
 	Serial.print("connected: ");
@@ -42,15 +57,29 @@ void setup() {
 	
 	// Busca pela data e horário atual
 	struct tm timeinfo;
-	if(!getLocalTime(&timeinfo)){
+	while(!getLocalTime(&timeinfo)){
 		Serial.println("Failed to obtain time");
-		return;
+		if(statusLed){
+			digitalWrite(STATUSPIN, LOW);
+			statusLed = false;
+		}
+		else{
+			digitalWrite(STATUSPIN, HIGH);
+			statusLed = true;
+		}
+		delay(100);
 	}
 	Serial.println(&timeinfo, "%b-%d-%Y/%H:%M:%S");
 
 	// Firebase é incializado
 	Firebase.begin(databaseURL);
 
+  for (int i=0; i<10; i++){
+    digitalWrite(STATUSPIN, HIGH);
+    delay(50);
+    digitalWrite(STATUSPIN, HIGH);
+    delay(50);
+  }
 	// Realiza o Stream da variável do atuador
 	Firebase.stream("/atuador", [](FirebaseStream stream) {
 		// Caso ocorra um evento, verifica qual foi o evento
@@ -68,9 +97,9 @@ void setup() {
 			Serial.println(statusActuator);
 			// Conforme o valor da variável, seta a porta lógica corresponde ao atuador
 			if(statusActuator == "true"){
-				digitalWrite(2, HIGH);
+				digitalWrite(ACTUATORPIN, HIGH);
 			}else if(statusActuator == "false"){
-				digitalWrite(2, LOW);
+				digitalWrite(ACTUATORPIN, LOW);
 			}
 			// String path = stream.getPath();
 			// String data = stream.getDataString();
@@ -81,7 +110,6 @@ void setup() {
 }
 
 void loop() {
-	// Loop é efetuado somenteDelay de 2 segundos é realizado
 	if(millis() > MILLISSEC){
 	    MILLISSEC += defineTimeSensorRead;
 	    Serial.println(millis());
@@ -95,7 +123,7 @@ void loop() {
 		Serial.println(&timeinfo, "%b-%d-%Y/%H:%M:%S"); 
 		
 		// Nome da variável é formatado para o formato "data/horário"
-		String uploadTime = "logs/";
+		String uploadTime = LOGSPATH;
 
 		if(timeinfo.tm_mday < 10){
 			uploadTime += "0";
@@ -139,7 +167,7 @@ void loop() {
 
 		// Número 0 é colocado no banco de dados.
 		// O nome da variável está no formato "data/horário"
-		Firebase.setFloat(upload, n);
+		Firebase.setFloat(uploadTime, n);
 		// Lida com algum possível erro
 		if (Firebase.failed()) {
 			Serial.print("setting /number failed:");
