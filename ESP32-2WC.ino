@@ -1,20 +1,26 @@
 #include <IOXhop_FirebaseESP32.h>
 #include <WiFi.h>
 
-// Tempo de espera para a comparação com millis
-#define defineTimeSensorRead 5000
 // SSID do WiFi
 #define WIFI_SSID "CS6"
 // PASSWORD do WiFi
 #define WIFI_PASSWORD "luisdaluz6"
 // Firebase Database URL
 #define databaseURL "engenharia-de-software-fa3bf.firebaseio.com"
+// Pino onde o Sensor está conectado
+#define SENSORPIN 4
 // Pino onde o Atuador está conectado
 #define ACTUATORPIN 2
 // Pino onde o LED de status está conectado
 #define STATUSPIN 2
 // Definição do caminho onde os dados do sensor serão armazenados
 #define LOGSPATH "logs/"
+// Definição do caminho onde a variável do atuador está armazenada
+#define ACTUATORPATH "/atuador"
+// Definição de quantas vezes o valor do sensor será lido até que haja o tratamento
+#define TIMESTOUPLOADVALUE 10
+// Tempo de intervalo entre cada leitura
+#define TIMESENSORREAD 1000
 
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = 3600;
@@ -22,19 +28,85 @@ const int   daylightOffset_sec = 3600;
 
 unsigned long long int MILLISSEC = 0;
 int n = 0;
+int temperatures[TIMESTOUPLOADVALUE];
+byte contSensorReads = 0;
+
+int vectorMedian(){
+	// Serial.println("Start Vector");
+	for (int i=0; i<TIMESTOUPLOADVALUE; i++){
+		// Serial.println(temperatures[i]);
+	}
+	// Serial.println("End Vector");
+	return temperatures[TIMESTOUPLOADVALUE-1];
+}
+
+String getDatetime(){
+	// Obtém a data atual
+	struct tm timeinfo;
+	while(!getLocalTime(&timeinfo));
+	Serial.println("----------------------------");
+	Serial.println(&timeinfo, "%b-%d-%Y/%H:%M:%S"); 
+	
+	// Nome da variável é formatado para o formato "data/horário"
+	String stringDatetime = LOGSPATH;
+
+	if(timeinfo.tm_mday < 10){
+		stringDatetime += "0";
+	}
+	stringDatetime += timeinfo.tm_mday;
+
+	stringDatetime += "-";
+
+	if(timeinfo.tm_mon+1 < 10){
+		stringDatetime += "0";
+	}
+	stringDatetime += timeinfo.tm_mon+1;
+
+	stringDatetime += "-";
+
+	stringDatetime += timeinfo.tm_year+1900;
+	stringDatetime += "/";
+
+	if(timeinfo.tm_hour < 10){
+		stringDatetime += "0";
+	}
+	stringDatetime += timeinfo.tm_hour-5;
+
+	stringDatetime += ":";
+
+	if(timeinfo.tm_min < 10){
+		stringDatetime += "0";
+	}
+	stringDatetime += timeinfo.tm_min;
+
+	stringDatetime += ":";
+
+	if(timeinfo.tm_sec < 10){
+		stringDatetime += "0";
+	}
+	stringDatetime += timeinfo.tm_sec;
+
+	Serial.print("stringDatetime: ");
+	Serial.println(stringDatetime);
+
+	return stringDatetime;
+}
+
 
 void setup() {
 	// Pino onde o atuador está conectado é declarado como saída
 	pinMode(ACTUATORPIN, OUTPUT);
+	// Pino onde o LED de status está conectado é declarado como saída
+	pinMode(STATUSPIN, OUTPUT);
 	
-	// Comunicação Serial é inicializada com Baud_rate 9600
-	Serial.begin(9600);
+	// Comunicação Serial é inicializada com Baud_rate 115200
+	Serial.begin(115200);
 	
 	// Conexão com WiFi
 	WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 	Serial.print("connecting");
 
-	// Enquanto o WiFi não está conectado, tenta conectar a cada 300ms
+	// Enquanto o WiFi não está conectado, tenta conectar.
 	boolean statusLed = false;
 	while (WiFi.status() != WL_CONNECTED) {
 		Serial.print(".");
@@ -67,21 +139,23 @@ void setup() {
 			digitalWrite(STATUSPIN, HIGH);
 			statusLed = true;
 		}
-		delay(100);
+		delay(200);
 	}
 	Serial.println(&timeinfo, "%b-%d-%Y/%H:%M:%S");
 
 	// Firebase é incializado
 	Firebase.begin(databaseURL);
 
-  for (int i=0; i<10; i++){
-    digitalWrite(STATUSPIN, HIGH);
-    delay(50);
-    digitalWrite(STATUSPIN, HIGH);
-    delay(50);
-  }
+	// Pisca LED de status para sinalizar o final da etapa de configuração
+	for (int i=0; i<10; i++){
+		digitalWrite(STATUSPIN, HIGH);
+		delay(50);
+		digitalWrite(STATUSPIN, HIGH);
+		delay(50);
+	}
+
 	// Realiza o Stream da variável do atuador
-	Firebase.stream("/atuador", [](FirebaseStream stream) {
+	Firebase.stream(ACTUATORPATH, [](FirebaseStream stream) {
 		// Caso ocorra um evento, verifica qual foi o evento
 		String eventType = stream.getEvent();
 		eventType.toLowerCase();
@@ -101,8 +175,6 @@ void setup() {
 			}else if(statusActuator == "false"){
 				digitalWrite(ACTUATORPIN, LOW);
 			}
-			// String path = stream.getPath();
-			// String data = stream.getDataString();
 		}
 	});  
 
@@ -111,69 +183,45 @@ void setup() {
 
 void loop() {
 	if(millis() > MILLISSEC){
-	    MILLISSEC += defineTimeSensorRead;
-	    Serial.println(millis());
-
-		// Obtém a data atual
-		struct tm timeinfo;
-		while(!getLocalTime(&timeinfo)){
-		  // Serial.println("Failed to obtain time");
-		  // return;
-		}
-		Serial.println(&timeinfo, "%b-%d-%Y/%H:%M:%S"); 
+	    MILLISSEC += TIMESENSORREAD;
 		
-		// Nome da variável é formatado para o formato "data/horário"
-		String uploadTime = LOGSPATH;
+	    int sensorRead = analogRead(SENSORPIN);
+		temperatures[contSensorReads] = sensorRead;
+		Serial.print("Time: ");
+		Serial.print(millis());
+		Serial.print(" / ");
+	    Serial.print("Leitura ");
+	    Serial.print(contSensorReads);
+	    Serial.print(": ");
+	    Serial.println(temperatures[contSensorReads]);
+		contSensorReads++;
 
-		if(timeinfo.tm_mday < 10){
-			uploadTime += "0";
+		if(contSensorReads == TIMESTOUPLOADVALUE){
+			// Reseta a variável contadora
+			contSensorReads = 0;
+
+			// Busca e formata a data e o horário atual
+			String stringDatetime = getDatetime();
+
+			// Realiza o tratamento estatístico para obter a temperatura correspondente
+			int SensorMedian = vectorMedian();
+			
+			// Temperatura correspondente é colocada no banco de dados.
+			// O nome da variável está no formato "data/horário"
+			Firebase.setFloat(stringDatetime, SensorMedian);
+			// Lida com algum possível erro
+			if (Firebase.failed()) {
+				Serial.print("setting /number failed:");
+				Serial.println(Firebase.error());  
+				return;
+			}
+			else{
+				Serial.print("value on database >> ");
+				Serial.print(stringDatetime);
+				Serial.print(": ");
+				Serial.println(String(SensorMedian));
+				Serial.println("----------------------------");
+			}
 		}
-		uploadTime += timeinfo.tm_mday;
-
-		uploadTime += "-";
-
-		if(timeinfo.tm_mon+1 < 10){
-			uploadTime += "0";
-		}
-		uploadTime += timeinfo.tm_mon+1;
-
-		uploadTime += "-";
-
-		uploadTime += timeinfo.tm_year+1900;
-		uploadTime += "/";
-
-		if(timeinfo.tm_hour < 10){
-			uploadTime += "0";
-		}
-		uploadTime += timeinfo.tm_hour;
-
-		uploadTime += ":";
-
-		if(timeinfo.tm_min < 10){
-			uploadTime += "0";
-		}
-		uploadTime += timeinfo.tm_min;
-
-		uploadTime += ":";
-
-		if(timeinfo.tm_sec < 10){
-			uploadTime += "0";
-		}
-		uploadTime += timeinfo.tm_sec;
-
-		Serial.println("uploadTime: ");
-		Serial.println(uploadTime);
-		Serial.println("------------------------");
-
-		// Número 0 é colocado no banco de dados.
-		// O nome da variável está no formato "data/horário"
-		Firebase.setFloat(uploadTime, n);
-		// Lida com algum possível erro
-		if (Firebase.failed()) {
-			Serial.print("setting /number failed:");
-			Serial.println(Firebase.error());  
-			return;
-		}
-
 	}
 }
