@@ -2,9 +2,9 @@
 #include <WiFi.h>
 
 // SSID do WiFi
-#define WIFI_SSID "CS6"
+#define WIFI_SSID "Cagghetto"
 // PASSWORD do WiFi
-#define WIFI_PASSWORD "luisdaluz6"
+#define WIFI_PASSWORD "12345679"
 // Firebase Database URL
 #define databaseURL "engenharia-de-software-fa3bf.firebaseio.com"
 // Pino onde o Sensor está conectado
@@ -21,31 +21,70 @@
 #define TIMESTOUPLOADVALUE 10
 // Tempo de intervalo entre cada leitura
 #define TIMESENSORREAD 1000
+// Define os títulos a serem printados na Serial
+#define VALUEUPLOAD "------------------Value Upload----------------"
+#define VECTOR 		"---------------------Vector-------------------"
+#define SORT 		"---------------------Sort---------------------"
+#define ENDVECTOR 	"-------------------End Vector-----------------"
+#define UPDATE 		"---------------------Update-------------------"
+#define EMPTYSPACE 	"----------------------------------------------"
 
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = 3600;
 const int   daylightOffset_sec = 3600;
 
-unsigned long long int MILLISSEC = 0;
-int n = 0;
+unsigned long long int millissec = 0;
 int temperatures[TIMESTOUPLOADVALUE];
 byte contSensorReads = 0;
+// byte teste = 0;
 
 int vectorMedian(){
-	// Serial.println("Start Vector");
+	// Printa o vetor
+	Serial.println(VECTOR);
 	for (int i=0; i<TIMESTOUPLOADVALUE; i++){
-		// Serial.println(temperatures[i]);
+		Serial.print("  ");
+		Serial.print(i);
+		Serial.print("- ");
+		Serial.println(temperatures[i]);
 	}
-	// Serial.println("End Vector");
-	return temperatures[TIMESTOUPLOADVALUE-1];
+
+	// Ordena o vetor
+	for (int i = 0; i<TIMESTOUPLOADVALUE; i++){
+		for (int j = 0; j<TIMESTOUPLOADVALUE; j++){
+			if (temperatures[j] > temperatures[i]){
+				int tmp = temperatures[i];
+				temperatures[i] = temperatures[j];
+				temperatures[j] = tmp;
+			}
+		}
+	}
+
+	// Printa o vetor depois do sort
+	Serial.println(SORT);
+	for (int i=0; i<TIMESTOUPLOADVALUE; i++){
+		Serial.print("  ");
+		Serial.print(i);
+		Serial.print("- ");
+		Serial.println(temperatures[i]);
+	}
+	Serial.println(ENDVECTOR);
+
+	// Define a posição do vetor a ser retornada e retorna
+	byte position = (TIMESTOUPLOADVALUE/2);
+	// Serial.print("Returning position: ");
+	// Serial.print(position);
+	// Serial.print(" / Value: ");
+	// Serial.println(temperatures[position]);
+
+	return temperatures[position];
 }
 
 String getDatetime(){
 	// Obtém a data atual
 	struct tm timeinfo;
 	while(!getLocalTime(&timeinfo));
-	Serial.println("----------------------------");
-	Serial.println(&timeinfo, "%b-%d-%Y/%H:%M:%S"); 
+	// Serial.println("----------------------------");
+	// Serial.println(&timeinfo, "%b-%d-%Y/%H:%M:%S"); 
 	
 	// Nome da variável é formatado para o formato "data/horário"
 	String stringDatetime = LOGSPATH;
@@ -86,8 +125,8 @@ String getDatetime(){
 	}
 	stringDatetime += timeinfo.tm_sec;
 
-	Serial.print("stringDatetime: ");
-	Serial.println(stringDatetime);
+	// Serial.print("stringDatetime: ");
+	// Serial.println(stringDatetime);
 
 	return stringDatetime;
 }
@@ -99,14 +138,14 @@ void setup() {
 	// Pino onde o LED de status está conectado é declarado como saída
 	pinMode(STATUSPIN, OUTPUT);
 	
+	// Conexão com WiFi
+	WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+	
 	// Comunicação Serial é inicializada com Baud_rate 115200
 	Serial.begin(115200);
 	
-	// Conexão com WiFi
-	WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-	Serial.print("connecting");
-
 	// Enquanto o WiFi não está conectado, tenta conectar.
+	Serial.print("connecting");
 	boolean statusLed = false;
 	while (WiFi.status() != WL_CONNECTED) {
 		Serial.print(".");
@@ -142,16 +181,25 @@ void setup() {
 		delay(200);
 	}
 	Serial.println(&timeinfo, "%b-%d-%Y/%H:%M:%S");
-
+	// Serial.println(timeinfo.tm_sec);
+	// Serial.println(timeinfo.tm_min);
+	// Serial.println(timeinfo.tm_hour);
+	// Serial.println(timeinfo.tm_mday);
+	// Serial.println(timeinfo.tm_mon+1);
+	// Serial.println(timeinfo.tm_year+1900);
+	// Serial.println(timeinfo.tm_wday);
+	// Serial.println(timeinfo.tm_yday);
+	// Serial.println(timeinfo.tm_isdst);
+	
 	// Firebase é incializado
 	Firebase.begin(databaseURL);
 
 	// Pisca LED de status para sinalizar o final da etapa de configuração
 	for (int i=0; i<10; i++){
 		digitalWrite(STATUSPIN, HIGH);
-		delay(50);
-		digitalWrite(STATUSPIN, HIGH);
-		delay(50);
+		delay(80);
+		digitalWrite(STATUSPIN, LOW);
+		delay(80);
 	}
 
 	// Realiza o Stream da variável do atuador
@@ -159,6 +207,7 @@ void setup() {
 		// Caso ocorra um evento, verifica qual foi o evento
 		String eventType = stream.getEvent();
 		eventType.toLowerCase();
+		Serial.println(UPDATE);
 		Serial.print("event: ");
 		Serial.println(eventType);
 		
@@ -176,16 +225,31 @@ void setup() {
 				digitalWrite(ACTUATORPIN, LOW);
 			}
 		}
+		Serial.println(EMPTYSPACE);
 	});  
 
-	MILLISSEC = millis();
+	millissec = millis();
 }
 
 void loop() {
-	if(millis() > MILLISSEC){
-	    MILLISSEC += TIMESENSORREAD;
+	if(millis() > millissec){
+	    millissec += TIMESENSORREAD;
 		
-	    int sensorRead = analogRead(SENSORPIN);
+	    int sensorRead;// = analogRead(SENSORPIN);
+	    // // Gerador de valores
+	    // if(teste==0){
+	    // 	sensorRead = millis();
+	    // 	teste = 1;
+	    // }
+	    // else if(teste == 1){
+	    // 	sensorRead = millis() - TIMESENSORREAD;
+	    // 	teste = 2;
+	    // }
+	    // else{
+	    // 	sensorRead = millissec - 6543;
+	    // 	teste = 0;
+	    // }
+
 		temperatures[contSensorReads] = sensorRead;
 		Serial.print("Time: ");
 		Serial.print(millis());
@@ -216,11 +280,12 @@ void loop() {
 				return;
 			}
 			else{
+				Serial.println(VALUEUPLOAD);
 				Serial.print("value on database >> ");
 				Serial.print(stringDatetime);
 				Serial.print(": ");
 				Serial.println(String(SensorMedian));
-				Serial.println("----------------------------");
+				Serial.println(EMPTYSPACE);
 			}
 		}
 	}
