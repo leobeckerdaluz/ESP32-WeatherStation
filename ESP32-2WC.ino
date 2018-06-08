@@ -8,9 +8,9 @@
 // Firebase Database URL
 #define databaseURL "engenharia-de-software-fa3bf.firebaseio.com"
 // Pino onde o Sensor está conectado
-#define SENSORPIN 4
+#define SENSORPIN 33
 // Pino onde o Atuador está conectado
-#define ACTUATORPIN 2
+#define ACTUATORPIN 23
 // Pino onde o LED de status está conectado
 #define STATUSPIN 2
 // Definição do caminho onde os dados do sensor serão armazenados
@@ -29,16 +29,33 @@
 #define UPDATE 		"---------------------Update-------------------"
 #define EMPTYSPACE 	"----------------------------------------------"
 
+// Definições para a data e horário
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = 3600;
 const int   daylightOffset_sec = 3600;
 
 unsigned long long int millissec = 0;
-int temperatures[TIMESTOUPLOADVALUE];
+float temperatures[TIMESTOUPLOADVALUE];
 byte contSensorReads = 0;
 // byte teste = 0;
 
-int vectorMedian(){
+float ADCtoCelcius(int ADCread){
+	// Resolução: 1.220703125 mV
+	// Logo, 8 equivale a 1ºC
+
+	// 5v 1024
+	// V   read
+	// V(volts) = 5*read/1024
+	// -
+	// Se 10mv equivale a 1ºC, então: 
+	// T(ºC) = V*1000/10
+	// -
+	// Logo, T(ºC) = (5*read/4096) * 1000/10
+	// Logo, T(ºC) = read * 500.0  / 4096.0
+ 	return ADCread * 500.0  / 4096.0;
+}
+
+float vectorMedian(){
 	// Printa o vetor
 	Serial.println(VECTOR);
 	for (int i=0; i<TIMESTOUPLOADVALUE; i++){
@@ -52,7 +69,7 @@ int vectorMedian(){
 	for (int i = 0; i<TIMESTOUPLOADVALUE; i++){
 		for (int j = 0; j<TIMESTOUPLOADVALUE; j++){
 			if (temperatures[j] > temperatures[i]){
-				int tmp = temperatures[i];
+				float tmp = temperatures[i];
 				temperatures[i] = temperatures[j];
 				temperatures[j] = tmp;
 			}
@@ -87,18 +104,14 @@ String getDatetime(){
 	// Serial.println(&timeinfo, "%b-%d-%Y/%H:%M:%S"); 
 	
 	// Nome da variável é formatado para o formato "data/horário"
-	String stringDatetime = LOGSPATH;
+	String stringDatetime = "";
 
-	if(timeinfo.tm_mday < 10){
-		stringDatetime += "0";
-	}
+	if(timeinfo.tm_mday < 10) 	stringDatetime += "0";
 	stringDatetime += timeinfo.tm_mday;
 
 	stringDatetime += "-";
 
-	if(timeinfo.tm_mon+1 < 10){
-		stringDatetime += "0";
-	}
+	if(timeinfo.tm_mon+1 < 10) 	stringDatetime += "0";
 	stringDatetime += timeinfo.tm_mon+1;
 
 	stringDatetime += "-";
@@ -106,23 +119,17 @@ String getDatetime(){
 	stringDatetime += timeinfo.tm_year+1900;
 	stringDatetime += "/";
 
-	if(timeinfo.tm_hour < 10){
-		stringDatetime += "0";
-	}
+	if(timeinfo.tm_hour < 10) 	stringDatetime += "0";
 	stringDatetime += timeinfo.tm_hour-5;
 
 	stringDatetime += ":";
 
-	if(timeinfo.tm_min < 10){
-		stringDatetime += "0";
-	}
+	if(timeinfo.tm_min < 10) 	stringDatetime += "0";
 	stringDatetime += timeinfo.tm_min;
 
 	stringDatetime += ":";
 
-	if(timeinfo.tm_sec < 10){
-		stringDatetime += "0";
-	}
+	if(timeinfo.tm_sec < 10) 	stringDatetime += "0";
 	stringDatetime += timeinfo.tm_sec;
 
 	// Serial.print("stringDatetime: ");
@@ -137,6 +144,8 @@ void setup() {
 	pinMode(ACTUATORPIN, OUTPUT);
 	// Pino onde o LED de status está conectado é declarado como saída
 	pinMode(STATUSPIN, OUTPUT);
+	// Pino onde o Sensor está conectado é declarado como entrada
+	pinMode(SENSORPIN, INPUT);
 	
 	// Conexão com WiFi
 	WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -235,22 +244,15 @@ void loop() {
 	if(millis() > millissec){
 	    millissec += TIMESENSORREAD;
 		
-	    int sensorRead;// = analogRead(SENSORPIN);
-	    // // Gerador de valores
-	    // if(teste==0){
-	    // 	sensorRead = millis();
-	    // 	teste = 1;
-	    // }
-	    // else if(teste == 1){
-	    // 	sensorRead = millis() - TIMESENSORREAD;
-	    // 	teste = 2;
-	    // }
-	    // else{
-	    // 	sensorRead = millissec - 6543;
-	    // 	teste = 0;
-	    // }
+	    int sensorRead = analogRead(SENSORPIN);
+	    Serial.print("TempADC:");
+	    Serial.println(sensorRead);
+	    
+	    float tempCelcius = ADCtoCelcius(sensorRead);
+	    Serial.print("TempConversao:");
+	    Serial.println(tempCelcius);
 
-		temperatures[contSensorReads] = sensorRead;
+		temperatures[contSensorReads] = tempCelcius;
 		Serial.print("Time: ");
 		Serial.print(millis());
 		Serial.print(" / ");
@@ -264,15 +266,16 @@ void loop() {
 			// Reseta a variável contadora
 			contSensorReads = 0;
 
-			// Busca e formata a data e o horário atual
-			String stringDatetime = getDatetime();
+			// Formata o caminho do log no database com a pasta na raiz e a data e o horário atual
+			String stringDatetime = LOGSPATH;
+			stringDatetime += getDatetime();
 
 			// Realiza o tratamento estatístico para obter a temperatura correspondente
-			int SensorMedian = vectorMedian();
+			float tempCelcius = vectorMedian();
 			
 			// Temperatura correspondente é colocada no banco de dados.
 			// O nome da variável está no formato "data/horário"
-			Firebase.setFloat(stringDatetime, SensorMedian);
+			Firebase.setFloat(stringDatetime, tempCelcius);
 			// Lida com algum possível erro
 			if (Firebase.failed()) {
 				Serial.print("setting /number failed:");
@@ -284,7 +287,7 @@ void loop() {
 				Serial.print("value on database >> ");
 				Serial.print(stringDatetime);
 				Serial.print(": ");
-				Serial.println(String(SensorMedian));
+				Serial.println(String(tempCelcius));
 				Serial.println(EMPTYSPACE);
 			}
 		}
