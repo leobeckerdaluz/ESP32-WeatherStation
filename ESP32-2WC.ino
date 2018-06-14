@@ -31,13 +31,13 @@
 
 // Definições para a data e horário
 const char* ntpServer = "pool.ntp.org";
-const long  gmtOffset_sec = 3600;
-const int   daylightOffset_sec = 3600;
+const long  gmtOffset_sec = -10800;
+const int   daylightOffset_sec = 0;
 
+unsigned long long int lastTime = 0;
 unsigned long long int millissec = 0;
 float temperatures[TIMESTOUPLOADVALUE];
 byte contSensorReads = 0;
-// byte teste = 0;
 
 float ADCtoCelcius(int ADCread){
 	// Resolução: 1.220703125 mV
@@ -46,13 +46,13 @@ float ADCtoCelcius(int ADCread){
 	// 5v 1024
 	// V   read
 	// V(volts) = 5*read/1024
-	// -
+
 	// Se 10mv equivale a 1ºC, então: 
 	// T(ºC) = V*1000/10
-	// -
 	// Logo, T(ºC) = (5*read/4096) * 1000/10
 	// Logo, T(ºC) = read * 500.0  / 4096.0
- 	return ADCread * 500.0  / 4096.0;
+
+ 	return ((ADCread * 500.0) / 4096.0);
 }
 
 float vectorMedian(){
@@ -88,11 +88,6 @@ float vectorMedian(){
 
 	// Define a posição do vetor a ser retornada e retorna
 	byte position = (TIMESTOUPLOADVALUE/2);
-	// Serial.print("Returning position: ");
-	// Serial.print(position);
-	// Serial.print(" / Value: ");
-	// Serial.println(temperatures[position]);
-
 	return temperatures[position];
 }
 
@@ -100,8 +95,6 @@ String getDatetime(){
 	// Obtém a data atual
 	struct tm timeinfo;
 	while(!getLocalTime(&timeinfo));
-	// Serial.println("----------------------------");
-	// Serial.println(&timeinfo, "%b-%d-%Y/%H:%M:%S"); 
 	
 	// Nome da variável é formatado para o formato "data/horário"
 	String stringDatetime = "";
@@ -120,7 +113,7 @@ String getDatetime(){
 	stringDatetime += "/";
 
 	if(timeinfo.tm_hour < 10) 	stringDatetime += "0";
-	stringDatetime += timeinfo.tm_hour-5;
+	stringDatetime += timeinfo.tm_hour;
 
 	stringDatetime += ":";
 
@@ -147,14 +140,15 @@ void setup() {
 	// Pino onde o Sensor está conectado é declarado como entrada
 	pinMode(SENSORPIN, INPUT);
 	
+	// Comunicação Serial é inicializada com Baud_rate 115200
+	Serial.begin(115200);
+
 	// Conexão com WiFi
 	WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 	
-	// Comunicação Serial é inicializada com Baud_rate 115200
-	Serial.begin(115200);
-	
 	// Enquanto o WiFi não está conectado, tenta conectar.
-	Serial.print("connecting");
+	Serial.print("connecting in ");
+	Serial.print(WIFI_SSID);
 	boolean statusLed = false;
 	while (WiFi.status() != WL_CONNECTED) {
 		Serial.print(".");
@@ -237,12 +231,15 @@ void setup() {
 		Serial.println(EMPTYSPACE);
 	});  
 
-	millissec = millis();
+	lastTime = millis();
 }
 
 void loop() {
-	if(millis() > millissec){
-	    millissec += TIMESENSORREAD;
+	// Handle millis() {https://oshlab.com/handle-millis-overflow-arduino/}
+
+	// Se passou o tempo entre cada leitura, lê o sensor!
+	if (millis() - lastTime >= TIMESENSORREAD){
+	    lastTime = millis();
 		
 	    int sensorRead = analogRead(SENSORPIN);
 	    Serial.print("TempADC:");
@@ -262,6 +259,7 @@ void loop() {
 	    Serial.println(temperatures[contSensorReads]);
 		contSensorReads++;
 
+		// Se já leu o suficiente, realiza o tratamento estatístico
 		if(contSensorReads == TIMESTOUPLOADVALUE){
 			// Reseta a variável contadora
 			contSensorReads = 0;
@@ -273,10 +271,13 @@ void loop() {
 			// Realiza o tratamento estatístico para obter a temperatura correspondente
 			float tempCelcius = vectorMedian();
 			
-			// Temperatura correspondente é colocada no banco de dados.
-			// O nome da variável está no formato "data/horário"
-			Firebase.setFloat(stringDatetime, tempCelcius);
-			// Lida com algum possível erro
+			// Converte a temperatura para uma string com precisão de 1 casa decimal somente.
+			char buff[10];
+			dtostrf(tempCelcius, 2, 1, buff); // min length=2 / setprecision=1
+		    
+			// Temperatura correspondente é colocada no database
+			Firebase.setString(stringDatetime, buff);
+			// Lida com algum possível erro no database
 			if (Firebase.failed()) {
 				Serial.print("setting /number failed:");
 				Serial.println(Firebase.error());  
@@ -287,7 +288,7 @@ void loop() {
 				Serial.print("value on database >> ");
 				Serial.print(stringDatetime);
 				Serial.print(": ");
-				Serial.println(String(tempCelcius));
+				Serial.println(buff);
 				Serial.println(EMPTYSPACE);
 			}
 		}
