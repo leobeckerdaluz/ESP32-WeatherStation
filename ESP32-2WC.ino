@@ -2,7 +2,7 @@
 #include <WiFi.h>
 
 // SSID do WiFi
-#define WIFI_SSID "Cagghetto"
+#define WIFI_SSID "apbeck"
 // PASSWORD do WiFi
 #define WIFI_PASSWORD "12345679"
 // Firebase Database URL
@@ -17,10 +17,10 @@
 #define LOGSPATH "logs/"
 // Definição do caminho onde a variável do atuador está armazenada
 #define ACTUATORPATH "/atuador"
-// Definição de quantas vezes o valor do sensor será lido até que haja o tratamento
+// Definição de quantas vezes o valor do sensor será lido até que haja o tratamento (Máx: 255)
 #define TIMESTOUPLOADVALUE 10
 // Tempo de intervalo entre cada leitura
-#define TIMESENSORREAD 1000
+#define TIMESENSORREAD 500
 // Define os títulos a serem printados na Serial
 #define VALUEUPLOAD "------------------Value Upload----------------"
 #define VECTOR 		"---------------------Vector-------------------"
@@ -236,10 +236,12 @@ void setup() {
 
 void loop() {
 	// Handle millis() {https://oshlab.com/handle-millis-overflow-arduino/}
+	// if (millis() - lastTime >= TIMESENSORREAD){
+		// lastTime = millis();
 
 	// Se passou o tempo entre cada leitura, lê o sensor!
-	if (millis() - lastTime >= TIMESENSORREAD){
-	    lastTime = millis();
+	if (millis() >= lastTime){
+		lastTime += TIMESENSORREAD;
 		
 	    int sensorRead = analogRead(SENSORPIN);
 	    Serial.print("TempADC:");
