@@ -184,15 +184,6 @@ void setup() {
 		delay(200);
 	}
 	Serial.println(&timeinfo, "%b-%d-%Y/%H:%M:%S");
-	// Serial.println(timeinfo.tm_sec);
-	// Serial.println(timeinfo.tm_min);
-	// Serial.println(timeinfo.tm_hour);
-	// Serial.println(timeinfo.tm_mday);
-	// Serial.println(timeinfo.tm_mon+1);
-	// Serial.println(timeinfo.tm_year+1900);
-	// Serial.println(timeinfo.tm_wday);
-	// Serial.println(timeinfo.tm_yday);
-	// Serial.println(timeinfo.tm_isdst);
 	
 	// Firebase é incializado
 	Firebase.begin(databaseURL);
@@ -200,9 +191,9 @@ void setup() {
 	// Pisca LED de status para sinalizar o final da etapa de configuração
 	for (int i=0; i<10; i++){
 		digitalWrite(STATUSPIN, HIGH);
-		delay(80);
+		delay(50);
 		digitalWrite(STATUSPIN, LOW);
-		delay(80);
+		delay(50);
 	}
 
 	// Realiza o Stream da variável do atuador
