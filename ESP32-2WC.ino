@@ -20,7 +20,7 @@
 // Definição de quantas vezes o valor do sensor será lido até que haja o tratamento (Máx: 255)
 #define TIMESTOUPLOADVALUE 10
 // Tempo de intervalo entre cada leitura
-#define TIMESENSORREAD 500
+#define TIMESENSORREAD 1000
 // Define os títulos a serem printados na Serial
 #define VALUEUPLOAD "------------------Value Upload----------------"
 #define VECTOR 		"---------------------Vector-------------------"
@@ -41,7 +41,7 @@ byte contSensorReads = 0;
 
 float ADCtoCelcius(int ADCread){
 	// Resolução: 1.220703125 mV
-	// Logo, 8 equivale a 1ºC
+	// Logo, 8mv equivale a 1ºC
 
 	// 5v 1024
 	// V   read
