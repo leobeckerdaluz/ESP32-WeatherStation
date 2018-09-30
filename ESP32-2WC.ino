@@ -15,8 +15,6 @@
 #define STATUSPIN 2
 // Definição do caminho onde os dados do sensor serão armazenados
 #define LOGSPATH "logs/"
-// Definição do caminho onde a variável do atuador está armazenada
-#define ACTUATORPATH "/atuador"
 // Definição de quantas vezes o valor do sensor será lido até que haja o tratamento (Máx: 255)
 #define TIMESTOUPLOADVALUE 10
 // Tempo de intervalo entre cada leitura
@@ -195,32 +193,6 @@ void setup() {
 		digitalWrite(STATUSPIN, LOW);
 		delay(50);
 	}
-
-	// Realiza o Stream da variável do atuador
-	Firebase.stream(ACTUATORPATH, [](FirebaseStream stream) {
-		// Caso ocorra um evento, verifica qual foi o evento
-		String eventType = stream.getEvent();
-		eventType.toLowerCase();
-		Serial.println(UPDATE);
-		Serial.print("event: ");
-		Serial.println(eventType);
-		
-		// Se o evento foi um "put" em "/atuador", verifica o estado atual da variável
-		if (eventType == "put") {
-			// Variável recebe o valor atual da variável no database
-			String statusActuator = stream.getDataString();
-			// Printa o valor atual da variável na Serial
-			Serial.print("Atualizado: ");
-			Serial.println(statusActuator);
-			// Conforme o valor da variável, seta a porta lógica corresponde ao atuador
-			if(statusActuator == "true"){
-				digitalWrite(ACTUATORPIN, HIGH);
-			}else if(statusActuator == "false"){
-				digitalWrite(ACTUATORPIN, LOW);
-			}
-		}
-		Serial.println(EMPTYSPACE);
-	});  
 
 	lastTime = millis();
 }
