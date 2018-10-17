@@ -23,18 +23,55 @@ void loop() {
 	// String stringDatetime = getDatetime();
 	// // Serial.println((String)"datetime: " + stringDatetime);
 
+	Serial.printf("---------------------------------------------\n");
 	delay(500);
 
+	int adc_read = 1023;
 	// Testa o getTemperature
-	float temperature = getTemperature();
-	// Serial.printf("millis: %d / temperature: %f \n", millis(), temperature)
+	float temperature = ADCtoTemperature(adc_read);
+	// Serial.printf("millis: %d / temperature: %f \n", millis(), temperature);
 	Serial.print((String)"millis: " + millis() + (String)" / temperature:" + temperature + (String)"\n");
 
+	Serial.printf("---------------------------------------------\n");
 	delay(500);
 	
-	// Testa a mediana de um vetor
-	float temperatures[] = {1,2,3,4,5,6,7,8,9,10};
-	float temperatures[] = {1,2,3,4,5,6,7,8,9};
-	float tempCelcius = getArrayMedian(temperatures);
-	Serial.printf("array median: %f", tempCelcius);
+	// Testa a mediana de um vetor IMPAR
+	float v_array1[] = {1.5, 6.0, 5.7, 2.9, 3.2, 10.2};
+	int array_size1 = sizeof(v_array1) / sizeof(v_array1[0]);//Method
+	float expected_median1 = 4.45;
+	float array_median1 = getArrayMedian(v_array1, array_size1);
+	Serial.printf("array median: %f \n", array_median1);
+	if(array_median1 == expected_median1)
+		Serial.printf("Teste de mediana de um vetor de tamanho ímpar: APROVADO! %f == %f\n", array_median1, expected_median1);
+	else
+		Serial.printf("Teste de mediana de um vetor de tamanho ímpar: REPROVADO! %f != %f\n", array_median1, expected_median1);
+
+	Serial.printf("---------------------------------------------\n");
+	delay(500);
+
+	// Testa a mediana de um vetor PAR
+	float v_array2[] = {1.0 ,5.0, 6.0, 2.0, 11.0, 4.0};
+	int array_size2 = sizeof(v_array2) / sizeof(v_array2[0]);//Method
+	float expected_median2 = 4.5;
+	float array_median2 = getArrayMedian(v_array2, array_size2);
+	Serial.printf("array median: %f \n", array_median2);
+	if(array_median2 == expected_median2){
+		Serial.printf("Teste de mediana de um vetor de tamanho ímpar: APROVADO! %f == %f\n", array_median2, expected_median2);
+	}
+	else{
+		Serial.printf("Teste de mediana de um vetor de tamanho ímpar: REPROVADO! %f != %f\n", array_median2, expected_median2);
+	}
+
+	// Testa se os valores estão sendo armazenados float
+	certo v_array2[] = {1.0 ,5.0, 6.0, 2.0, 11.0, 4.0};
+	int array_size2 = sizeof(v_array2) / sizeof(v_array2[0]);//Method
+	float expected_median2 = 4.5;
+	float array_median2 = getArrayMedian(v_array2, array_size2);
+	Serial.printf("array median: %f \n", array_median2);
+	if(array_median2 == expected_median2){
+		Serial.printf("Teste de mediana de um vetor de tamanho ímpar: APROVADO! %f == %f\n", array_median2, expected_median2);
+	}
+	else{
+		Serial.printf("Teste de mediana de um vetor de tamanho ímpar: REPROVADO! %f != %f\n", array_median2, expected_median2);
+	}
 }
