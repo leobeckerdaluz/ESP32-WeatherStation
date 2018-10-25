@@ -29,7 +29,7 @@ void blink_task() {
     gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
     for (int i=0; i<10; i++){
         /* Blink on (output high) */
-        gpio_set_level(BLINK_GPIO, 1);
+        gpio_set_level(BLINK_GPIO, 1); 
         vTaskDelay(30 / portTICK_PERIOD_MS);
         gpio_set_level(BLINK_GPIO, 0);
         vTaskDelay(200 / portTICK_PERIOD_MS);
