@@ -1,4 +1,4 @@
-# ESP8266-2WC
+# ESP32-WeatherStation
 
 
 # -> Create AP on Manjaro Linux:
