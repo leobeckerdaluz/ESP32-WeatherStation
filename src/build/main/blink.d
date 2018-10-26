@@ -1,4 +1,4 @@
-blink.o: /home/bullpc/esp/blink/main/blink.c \
+blink.o: /home/bullpc/projects/ESP32-WeatherStation/src/main/blink.c \
  /home/bullpc/esp/esp-idf/components/newlib/include/stdio.h \
  /home/bullpc/esp/esp-idf/components/newlib/include/_ansi.h \
  /home/bullpc/esp/esp-idf/components/newlib/include/newlib.h \
@@ -21,7 +21,7 @@ blink.o: /home/bullpc/esp/blink/main/blink.c \
  /home/bullpc/esp/esp-idf/components/newlib/include/stdint.h \
  /home/bullpc/esp/esp-idf/components/newlib/include/sys/_intsup.h \
  /home/bullpc/esp/esp-idf/components/freertos/include/freertos/FreeRTOSConfig.h \
- /home/bullpc/esp/blink/build/include/sdkconfig.h \
+ /home/bullpc/projects/ESP32-WeatherStation/src/build/include/sdkconfig.h \
  /home/bullpc/esp/esp-idf/components/freertos/include/freertos/xtensa_config.h \
  /home/bullpc/esp/esp-idf/components/esp32/include/xtensa/hal.h \
  /home/bullpc/esp/esp-idf/components/esp32/include/xtensa/config/core.h \
@@ -77,7 +77,13 @@ blink.o: /home/bullpc/esp/blink/main/blink.c \
  /home/bullpc/esp/esp-idf/components/soc/esp32/include/soc/touch_channel.h \
  /home/bullpc/esp/esp-idf/components/freertos/include/freertos/task.h \
  /home/bullpc/esp/esp-idf/components/newlib/include/limits.h \
- /home/bullpc/esp/esp-idf/components/freertos/include/freertos/list.h
+ /home/bullpc/esp/esp-idf/components/freertos/include/freertos/list.h \
+ /home/bullpc/projects/ESP32-WeatherStation/src/main/ESP-WeatherStation.h \
+ /home/bullpc/esp/esp-idf/components/log/include/esp_log.h \
+ /home/bullpc/esp/esp-idf/components/log/include/esp_log_internal.h \
+ /home/bullpc/esp/esp-idf/components/driver/include/driver/adc.h \
+ /home/bullpc/esp/esp-idf/components/soc/esp32/include/soc/adc_channel.h \
+ /home/bullpc/esp/esp-idf/components/esp_adc_cal/include/esp_adc_cal.h
 
 /home/bullpc/esp/esp-idf/components/newlib/include/stdio.h:
 
@@ -123,7 +129,7 @@ blink.o: /home/bullpc/esp/blink/main/blink.c \
 
 /home/bullpc/esp/esp-idf/components/freertos/include/freertos/FreeRTOSConfig.h:
 
-/home/bullpc/esp/blink/build/include/sdkconfig.h:
+/home/bullpc/projects/ESP32-WeatherStation/src/build/include/sdkconfig.h:
 
 /home/bullpc/esp/esp-idf/components/freertos/include/freertos/xtensa_config.h:
 
@@ -236,4 +242,16 @@ blink.o: /home/bullpc/esp/blink/main/blink.c \
 /home/bullpc/esp/esp-idf/components/newlib/include/limits.h:
 
 /home/bullpc/esp/esp-idf/components/freertos/include/freertos/list.h:
-/home/bullpc/esp/blink/main/./blink.c:
+
+/home/bullpc/projects/ESP32-WeatherStation/src/main/ESP-WeatherStation.h:
+
+/home/bullpc/esp/esp-idf/components/log/include/esp_log.h:
+
+/home/bullpc/esp/esp-idf/components/log/include/esp_log_internal.h:
+
+/home/bullpc/esp/esp-idf/components/driver/include/driver/adc.h:
+
+/home/bullpc/esp/esp-idf/components/soc/esp32/include/soc/adc_channel.h:
+
+/home/bullpc/esp/esp-idf/components/esp_adc_cal/include/esp_adc_cal.h:
+/home/bullpc/projects/ESP32-WeatherStation/src/main/./blink.c:
