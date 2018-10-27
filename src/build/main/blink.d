@@ -83,7 +83,65 @@ blink.o: /home/bullpc/projects/ESP32-WeatherStation/src/main/blink.c \
  /home/bullpc/esp/esp-idf/components/log/include/esp_log_internal.h \
  /home/bullpc/esp/esp-idf/components/driver/include/driver/adc.h \
  /home/bullpc/esp/esp-idf/components/soc/esp32/include/soc/adc_channel.h \
- /home/bullpc/esp/esp-idf/components/esp_adc_cal/include/esp_adc_cal.h
+ /home/bullpc/esp/esp-idf/components/esp_adc_cal/include/esp_adc_cal.h \
+ /home/bullpc/esp/esp-idf/components/spiffs/include/esp_spiffs.h \
+ /home/bullpc/esp/esp-idf/components/newlib/platform_include/sys/unistd.h \
+ /home/bullpc/esp/esp-idf/components/newlib/include/sys/unistd.h \
+ /home/bullpc/esp/esp-idf/components/newlib/include/sys/stat.h \
+ /home/bullpc/esp/esp-idf/components/newlib/platform_include/time.h \
+ /home/bullpc/esp/esp-idf/components/newlib/include/time.h \
+ /home/bullpc/esp/esp-idf/components/newlib/include/machine/time.h \
+ /home/bullpc/esp/esp-idf/components/newlib/include/string.h \
+ /home/bullpc/esp/esp-idf/components/newlib/include/sys/string.h \
+ /home/bullpc/esp/esp-idf/components/freertos/include/freertos/event_groups.h \
+ /home/bullpc/esp/esp-idf/components/freertos/include/freertos/timers.h \
+ /home/bullpc/esp/esp-idf/components/freertos/include/freertos/task.h \
+ /home/bullpc/esp/esp-idf/components/esp32/include/esp_wifi.h \
+ /home/bullpc/esp/esp-idf/components/freertos/include/freertos/queue.h \
+ /home/bullpc/esp/esp-idf/components/esp32/include/rom/queue.h \
+ /home/bullpc/esp/esp-idf/components/esp32/include/esp_wifi_types.h \
+ /home/bullpc/esp/esp-idf/components/esp32/include/esp_interface.h \
+ /home/bullpc/esp/esp-idf/components/esp32/include/esp_wifi_crypto_types.h \
+ /home/bullpc/esp/esp-idf/components/esp32/include/esp_event.h \
+ /home/bullpc/esp/esp-idf/components/tcpip_adapter/include/tcpip_adapter.h \
+ /home/bullpc/esp/esp-idf/components/esp32/include/rom/queue.h \
+ /home/bullpc/esp/esp-idf/components/esp32/include/esp_wifi_types.h \
+ /home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/ip_addr.h \
+ /home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/opt.h \
+ /home/bullpc/esp/esp-idf/components/lwip/port/esp32/include/lwipopts.h \
+ /home/bullpc/esp/esp-idf/components/newlib/include/unistd.h \
+ /home/bullpc/esp/esp-idf/components/newlib/include/sys/time.h \
+ /home/bullpc/esp/esp-idf/components/newlib/include/sys/fcntl.h \
+ /home/bullpc/esp/esp-idf/components/newlib/include/sys/_default_fcntl.h \
+ /home/bullpc/esp/esp-idf/components/vfs/include/sys/ioctl.h \
+ /home/bullpc/esp/esp-idf/components/newlib/platform_include/sys/select.h \
+ /home/bullpc/esp/esp-idf/components/esp32/include/esp_task.h \
+ /home/bullpc/esp/esp-idf/components/lwip/port/esp32/include/netif/dhcp_state.h \
+ /home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/debug.h \
+ /home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/arch.h \
+ /home/bullpc/esp/esp-idf/components/lwip/port/esp32/include/arch/cc.h \
+ /home/bullpc/esp/esp-idf/components/newlib/platform_include/errno.h \
+ /home/bullpc/esp/esp-idf/components/newlib/include/errno.h \
+ /home/bullpc/esp/esp-idf/components/newlib/include/sys/errno.h \
+ /home/bullpc/esp/esp-idf/components/lwip/port/esp32/include/arch/sys_arch.h \
+ /home/bullpc/esp/esp-idf/components/freertos/include/freertos/semphr.h \
+ /home/bullpc/esp/esp-idf/components/freertos/include/freertos/queue.h \
+ /home/bullpc/esp/esp-idf/components/lwip/port/esp32/include/arch/vfs_lwip.h \
+ /home/bullpc/esp/esp-idf/components/newlib/include/inttypes.h \
+ /home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/def.h \
+ /home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/ip4_addr.h \
+ /home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/ip6_addr.h \
+ /home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/def.h \
+ /home/bullpc/esp/esp-idf/components/lwip/include/apps/dhcpserver/dhcpserver.h \
+ /home/bullpc/esp/esp-idf/components/esp32/include/esp_wifi_os_adapter.h \
+ /home/bullpc/esp/esp-idf/components/esp32/include/esp_event_loop.h \
+ /home/bullpc/esp/esp-idf/components/nvs_flash/include/nvs_flash.h \
+ /home/bullpc/esp/esp-idf/components/nvs_flash/include/nvs.h \
+ /home/bullpc/esp/esp-idf/components/spi_flash/include/esp_partition.h \
+ /home/bullpc/esp/esp-idf/components/spi_flash/include/esp_spi_flash.h \
+ /home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/err.h \
+ /home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/apps/sntp.h \
+ /home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/apps/sntp_opts.h
 
 /home/bullpc/esp/esp-idf/components/newlib/include/stdio.h:
 
@@ -254,4 +312,120 @@ blink.o: /home/bullpc/projects/ESP32-WeatherStation/src/main/blink.c \
 /home/bullpc/esp/esp-idf/components/soc/esp32/include/soc/adc_channel.h:
 
 /home/bullpc/esp/esp-idf/components/esp_adc_cal/include/esp_adc_cal.h:
+
+/home/bullpc/esp/esp-idf/components/spiffs/include/esp_spiffs.h:
+
+/home/bullpc/esp/esp-idf/components/newlib/platform_include/sys/unistd.h:
+
+/home/bullpc/esp/esp-idf/components/newlib/include/sys/unistd.h:
+
+/home/bullpc/esp/esp-idf/components/newlib/include/sys/stat.h:
+
+/home/bullpc/esp/esp-idf/components/newlib/platform_include/time.h:
+
+/home/bullpc/esp/esp-idf/components/newlib/include/time.h:
+
+/home/bullpc/esp/esp-idf/components/newlib/include/machine/time.h:
+
+/home/bullpc/esp/esp-idf/components/newlib/include/string.h:
+
+/home/bullpc/esp/esp-idf/components/newlib/include/sys/string.h:
+
+/home/bullpc/esp/esp-idf/components/freertos/include/freertos/event_groups.h:
+
+/home/bullpc/esp/esp-idf/components/freertos/include/freertos/timers.h:
+
+/home/bullpc/esp/esp-idf/components/freertos/include/freertos/task.h:
+
+/home/bullpc/esp/esp-idf/components/esp32/include/esp_wifi.h:
+
+/home/bullpc/esp/esp-idf/components/freertos/include/freertos/queue.h:
+
+/home/bullpc/esp/esp-idf/components/esp32/include/rom/queue.h:
+
+/home/bullpc/esp/esp-idf/components/esp32/include/esp_wifi_types.h:
+
+/home/bullpc/esp/esp-idf/components/esp32/include/esp_interface.h:
+
+/home/bullpc/esp/esp-idf/components/esp32/include/esp_wifi_crypto_types.h:
+
+/home/bullpc/esp/esp-idf/components/esp32/include/esp_event.h:
+
+/home/bullpc/esp/esp-idf/components/tcpip_adapter/include/tcpip_adapter.h:
+
+/home/bullpc/esp/esp-idf/components/esp32/include/rom/queue.h:
+
+/home/bullpc/esp/esp-idf/components/esp32/include/esp_wifi_types.h:
+
+/home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/ip_addr.h:
+
+/home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/opt.h:
+
+/home/bullpc/esp/esp-idf/components/lwip/port/esp32/include/lwipopts.h:
+
+/home/bullpc/esp/esp-idf/components/newlib/include/unistd.h:
+
+/home/bullpc/esp/esp-idf/components/newlib/include/sys/time.h:
+
+/home/bullpc/esp/esp-idf/components/newlib/include/sys/fcntl.h:
+
+/home/bullpc/esp/esp-idf/components/newlib/include/sys/_default_fcntl.h:
+
+/home/bullpc/esp/esp-idf/components/vfs/include/sys/ioctl.h:
+
+/home/bullpc/esp/esp-idf/components/newlib/platform_include/sys/select.h:
+
+/home/bullpc/esp/esp-idf/components/esp32/include/esp_task.h:
+
+/home/bullpc/esp/esp-idf/components/lwip/port/esp32/include/netif/dhcp_state.h:
+
+/home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/debug.h:
+
+/home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/arch.h:
+
+/home/bullpc/esp/esp-idf/components/lwip/port/esp32/include/arch/cc.h:
+
+/home/bullpc/esp/esp-idf/components/newlib/platform_include/errno.h:
+
+/home/bullpc/esp/esp-idf/components/newlib/include/errno.h:
+
+/home/bullpc/esp/esp-idf/components/newlib/include/sys/errno.h:
+
+/home/bullpc/esp/esp-idf/components/lwip/port/esp32/include/arch/sys_arch.h:
+
+/home/bullpc/esp/esp-idf/components/freertos/include/freertos/semphr.h:
+
+/home/bullpc/esp/esp-idf/components/freertos/include/freertos/queue.h:
+
+/home/bullpc/esp/esp-idf/components/lwip/port/esp32/include/arch/vfs_lwip.h:
+
+/home/bullpc/esp/esp-idf/components/newlib/include/inttypes.h:
+
+/home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/def.h:
+
+/home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/ip4_addr.h:
+
+/home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/ip6_addr.h:
+
+/home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/def.h:
+
+/home/bullpc/esp/esp-idf/components/lwip/include/apps/dhcpserver/dhcpserver.h:
+
+/home/bullpc/esp/esp-idf/components/esp32/include/esp_wifi_os_adapter.h:
+
+/home/bullpc/esp/esp-idf/components/esp32/include/esp_event_loop.h:
+
+/home/bullpc/esp/esp-idf/components/nvs_flash/include/nvs_flash.h:
+
+/home/bullpc/esp/esp-idf/components/nvs_flash/include/nvs.h:
+
+/home/bullpc/esp/esp-idf/components/spi_flash/include/esp_partition.h:
+
+/home/bullpc/esp/esp-idf/components/spi_flash/include/esp_spi_flash.h:
+
+/home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/err.h:
+
+/home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/apps/sntp.h:
+
+/home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/apps/sntp_opts.h:
 /home/bullpc/projects/ESP32-WeatherStation/src/main/./blink.c:
