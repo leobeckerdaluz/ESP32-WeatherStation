@@ -1,4 +1,5 @@
-blink.o: /home/bullpc/projects/ESP32-WeatherStation/src/main/blink.c \
+ESP-WeatherStation.o: \
+ /home/bullpc/projects/ESP32-WeatherStation/src/main/ESP-WeatherStation.c \
  /home/bullpc/esp/esp-idf/components/newlib/include/stdio.h \
  /home/bullpc/esp/esp-idf/components/newlib/include/_ansi.h \
  /home/bullpc/esp/esp-idf/components/newlib/include/newlib.h \
@@ -428,4 +429,4 @@ blink.o: /home/bullpc/projects/ESP32-WeatherStation/src/main/blink.c \
 /home/bullpc/esp/esp-idf/components/lwip/lwip/src/include/lwip/apps/sntp_opts.h:
 
 /home/bullpc/projects/ESP32-WeatherStation/src/main/ESP-WeatherStation.h:
-/home/bullpc/projects/ESP32-WeatherStation/src/main/./blink.c:
+/home/bullpc/projects/ESP32-WeatherStation/src/main/./ESP-WeatherStation.c:
