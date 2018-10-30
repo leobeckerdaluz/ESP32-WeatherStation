@@ -71,7 +71,10 @@ void app_main() {
 		ESP_LOGI(TAG, "-------------%d/%d-------------", (contSensorReads+1), TIMESTOUPLOADVALUE);
 
 		// Read ADC
-		uint32_t voltage = voltageADCreading();
+		uint32_t ADCread = ADCreading();
+		ESP_LOGI(TAG, "ADC read: %d", ADCread);
+		
+		uint32_t voltage = ADCtoVoltage(ADCread);
 		ESP_LOGI(TAG, "Voltage: %dmV", voltage);
 
 		// Converts ADC value to Voltage (mV)

@@ -30,7 +30,6 @@
 #include "ESP-WeatherStation.h"
 
 
-
 /* FreeRTOS event group to signal when we are connected & ready to make a request */
 EventGroupHandle_t wifi_event_group;
 /* The event group allows multiple bits for each event,
@@ -131,7 +130,7 @@ void initialise_wifi(void){
     ESP_ERROR_CHECK( esp_wifi_start() );
 }
 
-uint32_t voltageADCreading(){
+uint32_t ADCreading(){
 	uint32_t adc_reading = 0;
 	//Multisampling
 	for (int i = 0; i < NO_OF_SAMPLES; i++) {
@@ -144,18 +143,22 @@ uint32_t voltageADCreading(){
 		}
 	}
 	adc_reading /= NO_OF_SAMPLES;
-	//Convert adc_reading to voltage in mV
-	uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
-	ESP_LOGI(TAG, "Leitura ADC: %d", adc_reading);
 
-	return voltage;
+	return adc_reading;
+}
+
+uint32_t ADCtoVoltage(uint32_t adc_reading){
+    //Convert adc_reading to voltage in mV
+    uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
+    ESP_LOGI(TAG, "Leitura ADC: %d", adc_reading);
+
+    return voltage;
 }
 
 float milivoltsTOcelciusLM35(uint32_t voltage){
 	float temperature = (voltage/10.0);
 	return temperature;
 }
-
 
 float getArrayMedian(float v_array[], int array_size){
 	// Ordena o vetor
