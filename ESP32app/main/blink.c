@@ -1,11 +1,3 @@
-/* Blink Example
-
-	 This example code is in the Public Domain (or CC0 licensed, at your option.)
-
-	 Unless required by applicable law or agreed to in writing, this
-	 software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-	 CONDITIONS OF ANY KIND, either express or implied.
-*/
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -38,9 +30,6 @@
 #include "ESP-WeatherStation.h"
 
 static const char *TAG = "ESP32-WeatherStation";
-
-void init_app();
-char* get_datetime_ntp();
 
 void init_app() {
 	ESP_LOGI(TAG, "Setting all parameters");
@@ -102,9 +91,11 @@ void app_main() {
 
 			// Get datetime on string
 			char* datetime = get_datetime_ntp();
+			ESP_LOGI(TAG, "Got datetime: %s", datetime);
 			
 			// Get vector median
 			float tempCelcius = getArrayMedian(temperatures, TIMESTOUPLOADVALUE);
+			ESP_LOGI(TAG, "Got array median: %.1f", tempCelcius);
 
 			// Write on File
 			if (f == NULL) {
@@ -119,15 +110,12 @@ void app_main() {
 	fclose(f);
 	ESP_LOGI(TAG, "File written Closed");
 
+
 	/*
 	// ---------------------------------------------//
 	// ---------------------------------------------//
 	// ---------------------------------------------//
-	// ---------------------------------------------//
-	// ---------------------------------------------//
-	// ---------------------------------------------//
 	*/
-
     ESP_LOGI(TAG, "Reading file");
     f = fopen("/spiffs/hello.txt", "r");
     if (f == NULL) {
@@ -148,99 +136,15 @@ void app_main() {
         //as its input fp has been fully read, then exit the loop  
     }
     fclose(f);
-
 	/*
 	// ---------------------------------------------//
 	// ---------------------------------------------//
 	// ---------------------------------------------//
-	// ---------------------------------------------//
-	// ---------------------------------------------//
-	// ---------------------------------------------//
 	*/
+
 
     // All done, unmount partition and disable SPIFFS
     esp_vfs_spiffs_unregister(NULL);
     ESP_LOGI(TAG, "SPIFFS unmounted");
 }
 
-
-char* datetime_to_string(struct tm timeinfo){
-    char *datetime = malloc(20 * sizeof(char));
-    char buffer [33];
-	char spacers[2];
-
-    strcpy (datetime, "");
-
-    /*DAY*/
-    itoa (timeinfo.tm_mday, buffer, 10);
-	if (strlen(buffer) == 1){
-		strcat (datetime, "0");	
-	}
-	strcat (datetime, buffer);
-
-	/*SPACER*/
-	strcpy (spacers, "-");
-	strcat (datetime, spacers);	
-
-	/*MONTH*/
-    itoa ((timeinfo.tm_mon + 1), buffer, 10);
-	if (strlen(buffer) == 1){
-		strcat (datetime, "0");	
-	}
-	strcat (datetime, buffer);
-
-	/*SPACER*/
-	strcpy (spacers, "-");
-	strcat (datetime, spacers);
-
-	/*YEAR*/
-    itoa ((timeinfo.tm_year - 100), buffer, 10);
-	if (strlen(buffer) == 1){
-		strcat (datetime, "0");	
-	}
-	strcat (datetime, buffer);
-
-	/*SPACER*/
-	strcpy (spacers, "/");
-	strcat (datetime, spacers);
-
-	/*HOUR*/
-    itoa (timeinfo.tm_hour, buffer, 10);
-	if (strlen(buffer) == 1){
-		strcat (datetime, "0");	
-	}
-	strcat (datetime, buffer);
-
-	/*SPACER*/
-	strcpy (spacers, ":");
-	strcat (datetime, spacers);
-
-	/*MIN*/
-    itoa (timeinfo.tm_min, buffer, 10);
-	if (strlen(buffer) == 1){
-		strcat (datetime, "0");	
-	}
-	strcat (datetime, buffer);
-
-	/*SPACER*/
-	strcpy (spacers, ":");
-	strcat (datetime, spacers);
-
-	/*SEC*/
-    itoa (timeinfo.tm_sec, buffer, 10);
-	if (strlen(buffer) == 1){
-		strcat (datetime, "0");	
-	}
-	strcat (datetime, buffer);
-
-	return datetime;
-}
-
-
-char* get_datetime_ntp(){
-	setenv("TZ", "EST4EDT,M3.2.0/2,M11.1.0", 1);
-    tzset();
-    localtime_r(&now, &timeinfo);
-
-    return datetime_to_string(timeinfo);
-}

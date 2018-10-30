@@ -4,7 +4,6 @@
 #define TIMESTOUPLOADVALUE 10
 #define DELAY_EACH_ADC_READ 1000
 
-/*WIFI*/
 // #define EXAMPLE_WIFI_SSID "CS6"
 #define EXAMPLE_WIFI_SSID "Estrela-32"
 // #define EXAMPLE_WIFI_PASS "luisdaluz6"
@@ -33,3 +32,5 @@ extern float getArrayMedian(float v_array[], int array_size);
 extern void obtain_time(void);
 extern esp_err_t event_handler(void *ctx, system_event_t *event);
 extern void initialise_wifi(void);
+extern char* get_datetime_ntp();
+extern char* datetime_to_string(struct tm timeinfo);
