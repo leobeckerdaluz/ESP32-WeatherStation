@@ -149,8 +149,13 @@ uint32_t ADCreading(){
 
 uint32_t ADCtoVoltage(uint32_t adc_reading){
     //Convert adc_reading to voltage in mV
-    uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
-    ESP_LOGI(TAG, "Leitura ADC: %d", adc_reading);
+    // uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
+    // ESP_LOGI(TAG, "Leitura ADC: %d", adc_reading);
+    // ESP_LOGI(TAG, "Voltage: %d mV", voltage);
+
+    uint32_t voltage = (uint32_t)(adc_reading * 3300 / 4096);
+    // ESP_LOGI(TAG, "Leitura ADC: %d", adc_reading);
+    // ESP_LOGI(TAG, "Voltage: %f mV", voltage);
 
     return voltage;
 }

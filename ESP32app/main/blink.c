@@ -105,7 +105,7 @@ void app_main() {
 		        ESP_LOGE(TAG, "Failed to open file for writing");
 		        return;
 		    }
-		    fprintf(f, "%s: %.1f", datetime, tempCelcius);
+		    fprintf(f, "%s: %.1f\n", datetime, tempCelcius);
 		    ESP_LOGI(TAG, "Written: %s: %.1f", datetime, tempCelcius);
 		}
 		vTaskDelay(pdMS_TO_TICKS(DELAY_EACH_ADC_READ));
